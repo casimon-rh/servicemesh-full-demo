@@ -4,6 +4,9 @@ metadata:
   name: {{ include "sm-component.fullname" . }}
   labels:
     {{- include "sm-component.labels" . | nindent 4 }}
+    {{- range $extra := .Values.extraLabels }}
+      {{ toYaml $extra | nindent 4 }}
+    {{- end }} 
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -16,6 +19,9 @@ spec:
         sidecar.istio.io/inject: 'true'
         version: {{ .Values.servicemesh.subset }}
         app: {{ include "sm-component.fullname" . }}
+        {{- range $extra := .Values.extraLabels }}
+          {{ toYaml $extra | nindent 4 }}
+        {{- end }} 
     spec:
       serviceAccountName: default
       containers:

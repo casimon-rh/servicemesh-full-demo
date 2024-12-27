@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: servicemesh-full-node-d
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: servicemesh
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    helm:
+      valuesObject:
+        env:
+          - name: JUMPS
+            value: '6'
+          - name: ID
+            value: D
+          - name: CHAIN_SVC
+            value: 'http://servicemesh-full-node-a:3000/chain'
+          - name: JAEGER_COLLECTOR_ENDPOINT
+            value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
+        fullnameOverride: servicemesh-full-node-d
+        image:
+          name: servicemesh-full-node
+          pullPolicy: IfNotPresent
+          tag: latest
+        nameOverride: ''
+        replicaCount: 1
+        route:
+          enable: false
+          wildcardDomain: ""
+        service:
+          port: 3000
+          type: ClusterIP
+        servicemesh:
+          gateway: servicemesh-node
+          subset: v1
+        extraLabels:
+          app.kubernetes.io/part-of: servicemesh-node
+          app.openshift.io/runtime: nodejs
+    path: sm-component-chart
+    repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2

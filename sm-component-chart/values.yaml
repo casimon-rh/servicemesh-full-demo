@@ -8,6 +8,11 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+extraLabels:
+  app.kubernetes.io/part-of: servicemesh-node
+  app.openshift.io/runtime: nodejs
+
+
 env:
   - name: JUMPS
     value: "6"
