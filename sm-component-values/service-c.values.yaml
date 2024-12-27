@@ -9,14 +9,14 @@ nameOverride: ""
 fullnameOverride: "servicemesh-full-node-c"
 
 extraAnnotations:
-  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-a"}]'
+  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-d"}]'
 env:
   - name: JUMPS
     value: "6"
   - name: ID
     value: "C"
   - name: CHAIN_SVC
-    value: "http://servicemesh-full-node-a:3000/chain"
+    value: "http://servicemesh-full-node-d:3000/chain"
   - name: JAEGER_COLLECTOR_ENDPOINT
     value: "http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces"
 
@@ -24,7 +24,7 @@ service:
   type: ClusterIP
   port: 3000
 route:
-  enable: true
+  enable: false
   wildcardDomain: ""
 
 

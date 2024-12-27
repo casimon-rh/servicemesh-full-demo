@@ -6,17 +6,17 @@ image:
   tag: latest
 
 nameOverride: ""
-fullnameOverride: "servicemesh-full-node-b"
+fullnameOverride: "servicemesh-full-node-d"
 
 extraAnnotations:
-  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-c"}]'
+  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-a"}]'
 env:
   - name: JUMPS
     value: "6"
   - name: ID
-    value: "B"
+    value: "D"
   - name: CHAIN_SVC
-    value: "http://servicemesh-full-node-c:3000/chain"
+    value: "http://servicemesh-full-node-a:3000/chain"
   - name: JAEGER_COLLECTOR_ENDPOINT
     value: "http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces"
 

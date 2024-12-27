@@ -13,6 +13,7 @@ spec:
       name: tcp-{{ .Values.service.port }}
   selector:
     {{- include "sm-component.selectorLabels" . | nindent 4 }}
+    app: {{ include "sm-component.fullname" . }}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
