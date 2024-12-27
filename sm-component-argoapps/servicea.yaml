@@ -23,7 +23,7 @@ spec:
         fullnameOverride: servicemesh-full-node-a
         image:
           name: servicemesh-full-node
-          pullPolicy: IfNotPresent
+          pullPolicy: Always
           tag: latest
         
         extraAnnotations:

@@ -28,7 +28,7 @@ spec:
           prometheus.io/scheme: "http"
         image:
           name: servicemesh-full-node
-          pullPolicy: IfNotPresent
+          pullPolicy: Always
           tag: latest
         nameOverride: ''
         replicaCount: 1

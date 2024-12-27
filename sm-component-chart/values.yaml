@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   name: servicemesh-node
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: latest
 
 nameOverride: ""
