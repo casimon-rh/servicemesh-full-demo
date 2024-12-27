@@ -25,7 +25,8 @@ spec:
     - {{ .Release.Namespace }}/{{ .Values.servicemesh.gateway }}
     - mesh
   hosts:
-    - "*"
+    - {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - {{ include "sm-component.fullname" . }}
   http:
     - match:
         - uri:
