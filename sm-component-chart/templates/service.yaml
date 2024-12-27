@@ -25,14 +25,13 @@ spec:
     - {{ .Release.Namespace }}/{{ .Values.servicemesh.gateway }}
     - mesh
   hosts:
+    - {{ .Values.servicemesh.gateway }}-istio-system.{{ .Values.route.wildcardDomain }}
     - {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     - {{ include "sm-component.fullname" . }}
   http:
     - match:
         - uri:
-            prefix: /{{ include "sm-component.fullname" . }}
-          rewrite:
-            uri: /
+            prefix: /chain
       route:
         - destination:
             host: {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local

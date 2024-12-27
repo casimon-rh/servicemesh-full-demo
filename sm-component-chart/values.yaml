@@ -23,6 +23,7 @@ service:
   port: 3000
 route:
   enable: false
+  wildcardDomain: ""
 
 
 servicemesh:
