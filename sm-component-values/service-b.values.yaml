@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  name: servicemesh-node
+  pullPolicy: IfNotPresent
+  tag: latest
+
+nameOverride: ""
+fullnameOverride: ""
+
+env:
+  - name: JUMPS
+    value: "6"
+  - name: ID
+    value: "B"
+  - name: CHAIN_SVC
+    value: "http://servicemesh-node-c:3000/chain"
+  - name: JAEGER_COLLECTOR_ENDPOINT
+    value: "http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces"
+
+service:
+  type: ClusterIP
+  port: 3000
+route:
+  enable: true
+
+
+servicemesh:
+  gateway: "servicemesh-node"
+  subset: v1
