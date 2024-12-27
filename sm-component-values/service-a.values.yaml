@@ -25,6 +25,10 @@ route:
   enable: true
   wildcardDomain: ""
 
+extraLabels:
+  - app.kubernetes.io/part-of: servicemesh-node
+  - app.openshift.io/runtime: nodejs
+
 
 servicemesh:
   gateway: "servicemesh-node"

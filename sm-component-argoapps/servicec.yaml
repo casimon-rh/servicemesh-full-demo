@@ -37,8 +37,8 @@ spec:
           gateway: servicemesh-node
           subset: v1
         extraLabels:
-          app.kubernetes.io/part-of: servicemesh-node
-          app.openshift.io/runtime: nodejs
+          - app.kubernetes.io/part-of: servicemesh-node
+          - app.openshift.io/runtime: nodejs
     path: sm-component-chart
     repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
     targetRevision: HEAD
