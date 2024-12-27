@@ -16,16 +16,20 @@ spec:
   selector:
     matchLabels:
       {{- include "sm-component.selectorLabels" . | nindent 6 }}
+      version: {{ .Values.servicemesh.subset }}
+      app: {{ include "sm-component.fullname" . }}
   template:
     metadata:
       labels:
         {{- include "sm-component.labels" . | nindent 8 }}
-        sidecar.istio.io/inject: 'true'
         version: {{ .Values.servicemesh.subset }}
         app: {{ include "sm-component.fullname" . }}
         {{- range $extra := .Values.extraLabels }}
           {{ toYaml $extra | nindent 8 }}
         {{- end }} 
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        {{- toYaml .Values.extraAnnotations | nindent 8 }}
     spec:
       serviceAccountName: default
       containers:

@@ -10,6 +10,9 @@ fullnameOverride: "servicemesh-full-node-d"
 
 extraAnnotations:
   app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-a"}]'
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/scheme: "http"
 env:
   - name: JUMPS
     value: "6"

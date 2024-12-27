@@ -4,6 +4,7 @@ import { FORMAT_HTTP_HEADERS, Tags } from "opentracing"
 import pino from "pino"
 import pinohttp from "pino-http"
 import Jaeger from "jaeger-client"
+import prometheus from "prom-client"
 
 interface CustomResponse {
   location: string
@@ -38,9 +39,27 @@ const tracer = () => {
   tracer.registerExtractor(FORMAT_HTTP_HEADERS, codec)
   return tracer
 }
+const globalTracer = tracer()
 //? ------- Jaeger --------------
 
-const globalTracer = tracer()
+//! ------- Prometheus --------------
+const register = new prometheus.Registry()
+register.setDefaultLabels({
+  app: `servicemesh_node_${process.env.ID}`
+})
+const responseTime = new prometheus.Gauge({
+    name: `servicemesh_node_${process.env.ID}:ch_response_time`,
+    help: 'Time take in seconds to response'
+})
+const views = new prometheus.Counter({
+  name: `servicemesh_node_${process.env.ID}:ch_view_count`,
+  help: 'No of page views'
+})
+register.registerMetric(responseTime)
+register.registerMetric(views)
+//! ------- Prometheus --------------
+
+
 
 //* ------- Variables | Messages --------------
 const jumps: number = parseInt(process.env.JUMPS || "6")
@@ -85,14 +104,22 @@ const chain = async (endpoint: string,  request: Request): Promise<CustomRespons
 app.get('/chain', async (req: Request, res: Response) => {
   const count = (parseInt(`${req.query['count']}`) || 0) + 1
   const endpoint = `${process.env.CHAIN_SVC}?count=${count}`
+  responseTime.setToCurrentTime()
+  const end = responseTime.startTimer();
+  views.inc()
   if (count >= jumps) {
     return res.status(200).send(message('\nLast'))
   }
   try {
     const response = await chain(endpoint, req)
+    end()
     res.status(200).send(response)
   } catch (error) {
     res.status(200).send(error)
   }
+})
+app.get('/metrics', async (req: Request, res: Response) => {
+  res.set('Content-Type', register.contentType)
+  res.status(200).send(await register.metrics())
 })
 // -------------- Endpoint --------------
