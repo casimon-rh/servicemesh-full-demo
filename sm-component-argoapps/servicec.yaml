@@ -21,6 +21,8 @@ spec:
           - name: JAEGER_COLLECTOR_ENDPOINT
             value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
         fullnameOverride: servicemesh-full-node-c
+        extraAnnotations:
+          app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-d"}]'
         image:
           name: servicemesh-full-node
           pullPolicy: IfNotPresent

@@ -8,6 +8,8 @@ image:
 nameOverride: ""
 fullnameOverride: "servicemesh-full-node-c"
 
+extraAnnotations:
+  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-a"}]'
 env:
   - name: JUMPS
     value: "6"

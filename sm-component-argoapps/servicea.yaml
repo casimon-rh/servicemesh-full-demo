@@ -25,6 +25,9 @@ spec:
           name: servicemesh-full-node
           pullPolicy: IfNotPresent
           tag: latest
+        
+        extraAnnotations:
+          app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
         nameOverride: ''
         replicaCount: 1
         route:

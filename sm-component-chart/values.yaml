@@ -12,6 +12,8 @@ extraLabels:
   - app.kubernetes.io/part-of: servicemesh-node
   - app.openshift.io/runtime: nodejs
 
+extraAnnotations:
+  app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
 
 env:
   - name: JUMPS
