@@ -29,7 +29,7 @@ We define a generic service that we can later chain in requests with different i
 
 Other related libraries involved in this generic service are express and axios, that can help us with REST client-server interactions.
 
-![architecture](./img/6.jpg)
+![architecture](./doc/6.jpg)
 
 
 ## Technologies
