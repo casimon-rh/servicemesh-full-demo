@@ -39,24 +39,34 @@ const tracer = () => {
   tracer.registerExtractor(FORMAT_HTTP_HEADERS, codec)
   return tracer
 }
-const globalTracer = tracer()
+let globalTracer = undefined;
+
+if (process.env.ENABLE_TRACING || false) {
+  globalTracer = tracer()
+}
 //? ------- Jaeger --------------
 
 //! ------- Prometheus --------------
-const register = new prometheus.Registry()
-register.setDefaultLabels({
-  app: `servicemesh_node_${process.env.ID}`
-})
-const responseTime = new prometheus.Gauge({
+let register = undefined
+let responseTime = undefined
+let views = undefined
+
+if (process.env.ENABLE_METRICS || false) {
+  register = new prometheus.Registry()
+  register.setDefaultLabels({
+    app: `servicemesh_node_${process.env.ID}`
+  })
+  responseTime = new prometheus.Gauge({
     name: `servicemesh_node_${process.env.ID}:ch_response_time`,
     help: 'Time take in seconds to response'
-})
-const views = new prometheus.Counter({
-  name: `servicemesh_node_${process.env.ID}:ch_view_count`,
-  help: 'No of page views'
-})
-register.registerMetric(responseTime)
-register.registerMetric(views)
+  })
+  views = new prometheus.Counter({
+    name: `servicemesh_node_${process.env.ID}:ch_view_count`,
+    help: 'No of page views'
+  })
+  register.registerMetric(responseTime)
+  register.registerMetric(views)
+}
 //! ------- Prometheus --------------
 
 
@@ -75,51 +85,61 @@ const errmsg = (err: any): CustomResponse => ({
 //* ------- Variables | Messages --------------
 
 //! -------------- Client --------------
-const chain = async (endpoint: string,  request: Request): Promise<CustomResponse> => {
-  const parentSpan = globalTracer.extract(FORMAT_HTTP_HEADERS, request.headers)
-  let span: Jaeger.opentracing.Span | null = null
-  const spanname= `servicemesh-node-${process.env.ID}:chain`
-  if (parentSpan) 
-    span = globalTracer.startSpan(spanname, { childOf: parentSpan })
-  else 
-    span = globalTracer.startSpan(spanname)
+const chain = async (endpoint: string, request: Request): Promise<CustomResponse> => {
+  let span: Jaeger.opentracing.Span | undefined = undefined
+  if (process.env.ENABLE_TRACING || false) {
+    const parentSpan = globalTracer?.extract(FORMAT_HTTP_HEADERS, request.headers)
+    const spanname = `servicemesh-node-${process.env.ID}:chain`
+    if (parentSpan)
+      span = globalTracer?.startSpan(spanname, { childOf: parentSpan })
+    else
+      span = globalTracer?.startSpan(spanname)
+  }
   try {
-    span.setTag(Tags.SPAN_KIND, Tags.SPAN_KIND_RPC_SERVER)
-    span.setTag(Tags.HTTP_METHOD, request.method)
-    span.setTag(Tags.HTTP_URL, request.originalUrl)
-
-    globalTracer.inject(span, FORMAT_HTTP_HEADERS, request.headers)
-    
+    if (process.env.ENABLE_TRACING || false) {
+      span?.setTag(Tags.SPAN_KIND, Tags.SPAN_KIND_RPC_SERVER)
+      span?.setTag(Tags.HTTP_METHOD, request.method)
+      span?.setTag(Tags.HTTP_URL, request.originalUrl)
+      if (span)
+        globalTracer?.inject(span, FORMAT_HTTP_HEADERS, request.headers)
+    }
     const response = await axios.get(endpoint, { headers: request.headers })
     return message(response.data)
   } catch (err: any) {
     return errmsg(err.response.data)
   } finally {
-    span.finish()
+    if (span)
+      span.finish()
   }
 }
 //! -------------- Client --------------
 
 // -------------- Endpoint --------------
 app.get('/chain', async (req: Request, res: Response) => {
-  const count = (parseInt(`${req.query['count']}`) || 0) + 1
+  let count = (parseInt(`${req.query['count']}`) || 0) + 1
   const endpoint = `${process.env.CHAIN_SVC}?count=${count}`
-  responseTime.setToCurrentTime()
-  const end = responseTime.startTimer();
-  views.inc()
+  let end = undefined
+  if (process.env.ENABLE_METRICS || false) {
+    responseTime?.setToCurrentTime()
+    end = responseTime?.startTimer();
+    views?.inc()
+  }
   if (count >= jumps) {
     return res.status(200).send(message('\nLast'))
   }
   try {
     const response = await chain(endpoint, req)
-    end()
+    if (end)
+      end()
     res.status(200).send(response)
   } catch (error) {
     res.status(200).send(error)
   }
 })
 app.get('/metrics', async (req: Request, res: Response) => {
-  res.set('Content-Type', register.contentType)
-  res.status(200).send(await register.metrics())
+  if (process.env.ENABLE_METRICS || false) {
+    res.set('Content-Type', register?.contentType)
+    res.status(200).send(await register?.metrics())
+  } else res.status(404).send({})
 })
 // -------------- Endpoint --------------

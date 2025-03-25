@@ -24,6 +24,8 @@ services:
       ID: A
       CHAIN_SVC: http://bb:3000/chain
       JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
+      ENABLE_METRICS: true
+      ENABLE_TRACING: true
 
   bb:
     build:
@@ -36,6 +38,8 @@ services:
       ID: B
       CHAIN_SVC: http://cc:3000/chain
       JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
+      ENABLE_METRICS: true
+      ENABLE_TRACING: true
 
   cc:
     build:
@@ -48,3 +52,5 @@ services:
       ID: C
       CHAIN_SVC: http://aa:3000/chain
       JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
+      ENABLE_METRICS: true
+      ENABLE_TRACING: true

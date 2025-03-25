@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -20,12 +21,16 @@ spec:
             value: 'http://servicemesh-full-node-b:3000/chain'
           - name: JAEGER_COLLECTOR_ENDPOINT
             value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
+          - name: ENABLE_METRICS
+            value: true
+          - name: ENABLE_TRACING
+            value: true
         fullnameOverride: servicemesh-full-node-a
         image:
-          name: servicemesh-full-node
+          name: quay.io/casimon/servicemesh-full-node
           pullPolicy: Always
           tag: latest
-        
+          local: false
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
           prometheus.io/scrape: "true"

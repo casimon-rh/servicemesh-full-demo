@@ -4,6 +4,7 @@ image:
   name: servicemesh-node
   pullPolicy: Always
   tag: latest
+  local: true
 
 nameOverride: ""
 fullnameOverride: ""
