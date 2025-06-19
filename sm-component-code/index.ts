@@ -1,10 +1,17 @@
 import express, { Express, Request, Response } from 'express'
 import axios from 'axios'
-import { FORMAT_HTTP_HEADERS, Tags } from "opentracing"
+
 import pino from "pino"
 import pinohttp from "pino-http"
-import Jaeger from "jaeger-client"
 import prometheus from "prom-client"
+
+// Telemetry
+import * as opentelemetry from '@opentelemetry/sdk-node';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
+import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+
 
 interface CustomResponse {
   location: string
@@ -19,32 +26,25 @@ app.use(express.json())
 app.listen(3000, () => console.log('App listening on port 3000'))
 // ------- ExpressJS --------------
 
-//? ------- Jaeger --------------
-const tracer = () => {
-  const options = { logger: pino() }
-  const config = {
-    serviceName: `servicemesh-node-${process.env.ID}`,
-    sampler: {
-      type: "const",
-      param: 1,
-    },
-    reporter: {
-      logSpans: true,
-      collectorEndpoint: process.env.JAEGER_COLLECTOR_ENDPOINT
-    }
-  }
-  const tracer = Jaeger.initTracer(config, options)
-  const codec = new Jaeger.ZipkinB3TextMapCodec({ urlEncoding: true })
-  tracer.registerInjector(FORMAT_HTTP_HEADERS, codec)
-  tracer.registerExtractor(FORMAT_HTTP_HEADERS, codec)
-  return tracer
-}
-let globalTracer = undefined;
+//? ------- OpenTelemetry --------------
+const sdk = new opentelemetry.NodeSDK({
+  traceExporter: new OTLPTraceExporter({
+    // optional - default url is http://localhost:4318/v1/traces
+    url: `${process.env.COLLECTOR_ENDPOINT}/v1/traces`,
+    // optional - collection of custom headers to be sent with each request, empty by default
+    headers: {},
+  }),
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter({
+      url: `${process.env.COLLECTOR_ENDPOINT}/v1/metrics`, // url is optional and can be omitted - default is http://localhost:4318/v1/metrics
+      headers: {}, // an optional object containing custom headers to be sent with each request
+    }),
+  }),
+  instrumentations: [getNodeAutoInstrumentations()],
+});
 
-if (process.env.ENABLE_TRACING || false) {
-  globalTracer = tracer()
-}
-//? ------- Jaeger --------------
+sdk.start();
+//? ------- OpenTelemetry --------------
 
 //! ------- Prometheus --------------
 let register = undefined
@@ -86,30 +86,11 @@ const errmsg = (err: any): CustomResponse => ({
 
 //! -------------- Client --------------
 const chain = async (endpoint: string, request: Request): Promise<CustomResponse> => {
-  let span: Jaeger.opentracing.Span | undefined = undefined
-  if (process.env.ENABLE_TRACING || false) {
-    const parentSpan = globalTracer?.extract(FORMAT_HTTP_HEADERS, request.headers)
-    const spanname = `servicemesh-node-${process.env.ID}:chain`
-    if (parentSpan)
-      span = globalTracer?.startSpan(spanname, { childOf: parentSpan })
-    else
-      span = globalTracer?.startSpan(spanname)
-  }
   try {
-    if (process.env.ENABLE_TRACING || false) {
-      span?.setTag(Tags.SPAN_KIND, Tags.SPAN_KIND_RPC_SERVER)
-      span?.setTag(Tags.HTTP_METHOD, request.method)
-      span?.setTag(Tags.HTTP_URL, request.originalUrl)
-      if (span)
-        globalTracer?.inject(span, FORMAT_HTTP_HEADERS, request.headers)
-    }
     const response = await axios.get(endpoint, { headers: request.headers })
     return message(response.data)
   } catch (err: any) {
     return errmsg(err.response.data)
-  } finally {
-    if (span)
-      span.finish()
   }
 }
 //! -------------- Client --------------

@@ -4,12 +4,15 @@ networks:
   chains:
 
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:1.29
+  otelcol:
+    image: otel/opentelemetry-collector:latest
     networks:
       - chains
+    volumes:
+      - ./collector-config.yaml:/etc/otelcol/config.yaml
     ports:
-      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
 
   aa:
     build:
@@ -20,10 +23,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      JUMPS: 6
+      JUMPS: 2
       ID: A
       CHAIN_SVC: http://bb:3000/chain
-      JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
+      COLLECTOR_ENDPOINT: http://otelcol:4318
       ENABLE_METRICS: true
       ENABLE_TRACING: true
 
@@ -34,23 +37,9 @@ services:
     networks:
       - chains
     environment:
-      JUMPS: 6
+      JUMPS: 2
       ID: B
-      CHAIN_SVC: http://cc:3000/chain
-      JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
-      ENABLE_METRICS: true
-      ENABLE_TRACING: true
-
-  cc:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - chains
-    environment:
-      JUMPS: 6
-      ID: C
       CHAIN_SVC: http://aa:3000/chain
-      JAEGER_COLLECTOR_ENDPOINT: http://jaeger:14268/api/traces
+      COLLECTOR_ENDPOINT: http://otelcol:4318
       ENABLE_METRICS: true
       ENABLE_TRACING: true
