@@ -3,7 +3,7 @@ import axios from 'axios'
 
 import pino from "pino"
 import pinohttp from "pino-http"
-import prometheus from "prom-client"
+import prometheus, { Counter, PrometheusContentType, Registry } from "prom-client"
 
 // Telemetry
 import * as opentelemetry from '@opentelemetry/sdk-node';
@@ -11,6 +11,7 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { Gauge } from '@opentelemetry/api'
 
 
 interface CustomResponse {
@@ -47,9 +48,9 @@ sdk.start();
 //? ------- OpenTelemetry --------------
 
 //! ------- Prometheus --------------
-let register = undefined
-let responseTime = undefined
-let views = undefined
+let register : Registry<"text/plain; version=0.0.4; charset=utf-8">;
+let responseTime: any
+let views: Counter
 
 if (process.env.ENABLE_METRICS || false) {
   register = new prometheus.Registry()
