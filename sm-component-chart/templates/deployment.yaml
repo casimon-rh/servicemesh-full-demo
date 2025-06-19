@@ -34,6 +34,10 @@ spec:
       {{- end }} 
     spec:
       serviceAccountName: default
+      {{- if .Values.image.private }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      {{- end }} 
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.image.local }}

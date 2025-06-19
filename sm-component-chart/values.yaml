@@ -5,6 +5,8 @@ image:
   pullPolicy: Always
   tag: latest
   local: true
+  private: true
+  pullSecret: casimon-robot-pull-secret
 
 nameOverride: ""
 fullnameOverride: ""
