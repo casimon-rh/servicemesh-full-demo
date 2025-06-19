@@ -37,3 +37,4 @@ route:
 servicemesh:
   gateway: "servicemesh-node"
   subset: v1
+  enable: true

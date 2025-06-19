@@ -27,9 +27,11 @@ spec:
         {{- range $extra := .Values.extraLabels }}
           {{ toYaml $extra | nindent 8 }}
         {{- end }} 
+      {{- if .Values.servicemesh.enable }}
       annotations:
         sidecar.istio.io/inject: 'true'
         {{- toYaml .Values.extraAnnotations | nindent 8 }}
+      {{- end }} 
     spec:
       serviceAccountName: default
       containers:
@@ -37,7 +39,7 @@ spec:
           {{- if .Values.image.local }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/{{ .Values.image.name }}:{{ .Values.image.tag | default "latest"}}
           {{- else }}
-          image: "{{ .Values.image.name }}:{{ .Values.image.tag | default 'latest'}}"
+          image: {{ .Values.image.name }}:{{ .Values.image.tag | default "latest"}}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:

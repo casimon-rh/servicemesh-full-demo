@@ -1,9 +1,8 @@
 import express, { Express, Request, Response } from 'express'
 import axios from 'axios'
 
-import pino from "pino"
 import pinohttp from "pino-http"
-import prometheus, { Counter, PrometheusContentType, Registry } from "prom-client"
+import prometheus, { Counter, Registry } from "prom-client"
 
 // Telemetry
 import * as opentelemetry from '@opentelemetry/sdk-node';
@@ -11,7 +10,6 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { Gauge } from '@opentelemetry/api'
 
 
 interface CustomResponse {

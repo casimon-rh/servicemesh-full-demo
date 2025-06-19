@@ -4,6 +4,7 @@ image:
   name: servicemesh-full-node
   pullPolicy: Always
   tag: latest
+  local: true
 
 nameOverride: ""
 fullnameOverride: "servicemesh-full-node-a"
@@ -37,5 +38,4 @@ extraLabels:
 
 
 servicemesh:
-  gateway: "servicemesh-node"
-  subset: v1
+  enable: false
