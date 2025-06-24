@@ -31,6 +31,7 @@ spec:
           pullPolicy: Always
           tag: otel
           local: false
+          pullSecret: casimon-robot-pull-secret
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
           prometheus.io/scrape: "true"
