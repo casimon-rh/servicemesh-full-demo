@@ -22,9 +22,9 @@ spec:
           - name: COLLECTOR_ENDPOINT
             value: 'http://tempo-sample-distributor.observability.svc.cluster.local:4318'
           - name: ENABLE_METRICS
-            value: true
+            value: 'true'
           - name: ENABLE_TRACING
-            value: true
+            value: 'true'
         fullnameOverride: servicemesh-full-node-a
         image:
           name: quay.io/casimon/servicemesh-full-node
@@ -45,14 +45,13 @@ spec:
           port: 3000
           type: ClusterIP
         servicemesh:
-          gateway: servicemesh-node
-          subset: v1
+          enable: false
         extraLabels:
           - app.kubernetes.io/part-of: servicemesh-node
           - app.openshift.io/runtime: nodejs
     path: sm-component-chart
     repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
-    targetRevision: HEAD
+    targetRevision: opentelemetry
   syncPolicy:
     automated:
       prune: true
