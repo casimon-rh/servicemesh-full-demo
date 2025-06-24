@@ -6,7 +6,7 @@ metadata:
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: servicemesh
+    namespace: observability
     server: 'https://kubernetes.default.svc'
   project: default
   source:
@@ -14,13 +14,13 @@ spec:
       valuesObject:
         env:
           - name: JUMPS
-            value: '6'
+            value: '2'
           - name: ID
             value: A
           - name: CHAIN_SVC
             value: 'http://servicemesh-full-node-b:3000/chain'
-          - name: JAEGER_COLLECTOR_ENDPOINT
-            value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
+          - name: COLLECTOR_ENDPOINT
+            value: 'http://tempo-sample-distributor.observability.svc.cluster.local:4318'
           - name: ENABLE_METRICS
             value: true
           - name: ENABLE_TRACING
@@ -29,7 +29,7 @@ spec:
         image:
           name: quay.io/casimon/servicemesh-full-node
           pullPolicy: Always
-          tag: latest
+          tag: otel
           local: false
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
