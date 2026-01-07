@@ -37,7 +37,7 @@ spec:
           {{- if .Values.image.local }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/{{ .Values.image.name }}:{{ .Values.image.tag | default "latest"}}
           {{- else }}
-          image: "{{ .Values.image.name }}:{{ .Values.image.tag | default 'latest'}}"
+          image: {{ .Values.image.name }}:{{ .Values.image.tag | default "latest"}}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
