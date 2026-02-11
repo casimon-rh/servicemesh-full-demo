@@ -1,4 +1,22 @@
 {{- if .Values.route.enable }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ include "sm-component.fullname" . }}
+  labels:
+    {{- include "sm-component.labels" . | nindent 4 }}
+spec:
+  to:
+    kind: Service
+    name: {{ include "sm-component.fullname" . }}
+    weight: 100
+  port:
+    targetPort: tcp-{{ .Values.service.port }}
+  tls:
+    termination: reencrypt
+  wildcardPolicy: None
+{{- if .Values.servicemesh.enable }}
+---
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
@@ -15,4 +33,5 @@ spec:
       protocol: HTTP
     hosts:
     - {{ .Values.servicemesh.gateway }}-istio-system.{{ .Values.route.wildcardDomain }}
+{{- end }}
 {{- end }}
