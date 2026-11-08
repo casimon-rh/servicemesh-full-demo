@@ -6,7 +6,7 @@ metadata:
   namespace: default
 spec:
   destination:
-    namespace: servicemesh
+    namespace: observability
     server: 'https://kubernetes.default.svc'
   project: default
   source:
@@ -14,7 +14,7 @@ spec:
       valuesObject:
         env:
           - name: JUMPS
-            value: '6'
+            value: '2'
           - name: ID
             value: A
           - name: CHAIN_SVC
@@ -27,8 +27,9 @@ spec:
         image:
           name: quay.io/casimon/servicemesh-full-node
           pullPolicy: Always
-          tag: latest
+          tag: otel
           local: false
+          pullSecret: casimon-robot-pull-secret
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
         nameOverride: ''
@@ -40,12 +41,20 @@ spec:
           port: 3000
           type: ClusterIP
         servicemesh:
-          gateway: servicemesh-node
-          subset: v1
+          enable: false
         extraLabels:
           - app.kubernetes.io/part-of: servicemesh-node
           - app.openshift.io/runtime: nodejs
     path: sm-component-chart
     repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
-    targetRevision: HEAD
-  syncPolicy: {}
+    targetRevision: opentelemetry
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
