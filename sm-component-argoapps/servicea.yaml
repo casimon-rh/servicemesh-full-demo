@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: servicemesh-full-node-a
-  namespace: openshift-gitops
+  namespace: default
 spec:
   destination:
     namespace: servicemesh
@@ -19,12 +19,10 @@ spec:
             value: A
           - name: CHAIN_SVC
             value: 'http://servicemesh-full-node-b:3000/chain'
-          - name: JAEGER_COLLECTOR_ENDPOINT
-            value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
           - name: ENABLE_METRICS
-            value: true
+            value: false
           - name: ENABLE_TRACING
-            value: true
+            value: false
         fullnameOverride: servicemesh-full-node-a
         image:
           name: quay.io/casimon/servicemesh-full-node
@@ -33,9 +31,6 @@ spec:
           local: false
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "3000"
-          prometheus.io/scheme: "http"
         nameOverride: ''
         replicaCount: 1
         route:
@@ -53,13 +48,4 @@ spec:
     path: sm-component-chart
     repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
     targetRevision: HEAD
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    retry:
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m0s
-      limit: 2
+  syncPolicy: {}

@@ -27,6 +27,7 @@ app.listen(3000, () => console.log('App listening on port 3000'))
 
 //? ------- OpenTelemetry --------------
 const sdk = new opentelemetry.NodeSDK({
+  serviceName: `servicemesh_node_${process.env.ID}`,
   traceExporter: new OTLPTraceExporter({
     // optional - default url is http://localhost:4318/v1/traces
     url: `${process.env.COLLECTOR_ENDPOINT}/v1/traces`,

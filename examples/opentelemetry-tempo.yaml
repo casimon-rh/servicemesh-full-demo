@@ -1,0 +1,229 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tempo-bucket-secret
+stringData:
+  bucket: tempo
+  endpoint: minio.minio.svc.cluster.local:9000
+  access_key_id: dWsdZMOZXh71Ka39OB5I
+  access_key_secret: sTJ6v9rn1hjl9eyFgLt9kxO50amZltzbQBrgv9WW
+type: Opaque
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tempostack-traces-reader
+rules:
+  - apiGroups:
+      - 'tempo.grafana.com'
+    resources: 
+      - dev
+      - prod
+    resourceNames:
+      - traces
+    verbs:
+      - 'get' 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tempostack-traces-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tempostack-traces-reader
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: system:authenticated 
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: observability
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tempostack-traces-write
+rules:
+  - apiGroups:
+      - 'tempo.grafana.com'
+    resources: 
+      - dev
+    resourceNames:
+      - traces
+    verbs:
+      - 'create' 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tempostack-traces
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tempostack-traces-write
+subjects:
+  - kind: ServiceAccount
+    name: otel-collector 
+    namespace: observability
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: cluster-collector
+  namespace: observability
+spec:
+  spec:
+  observability:
+    metrics: {}
+  deploymentUpdateStrategy: {}
+  config:
+    exporters:
+      otlp/dev:
+        auth:
+          authenticator: bearertokenauth
+        endpoint: 'tempo-sample-gateway.observability.svc.cluster.local:8090'
+        headers:
+          X-Scope-OrgID: dev
+        tls:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+          insecure: false
+    extensions:
+      bearertokenauth:
+        filename: /var/run/secrets/kubernetes.io/serviceaccount/token
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: '0.0.0.0:4317'
+          http:
+            endpoint: '0.0.0.0:4318'
+    service:
+      extensions:
+        - bearertokenauth
+      pipelines:
+        traces:
+          exporters:
+            - otlp/dev
+          receivers:
+            - otlp
+      telemetry:
+        logs:
+          level: debug
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 0.0.0.0
+                    port: 8888
+  mode: deployment
+  resources: {}
+  podDnsConfig: {}
+  managementState: managed
+  upgradeStrategy: automatic
+  ingress:
+    route: {}
+  serviceAccount: otel-collector
+  daemonSetUpdateStrategy: {}
+  targetAllocator:
+    allocationStrategy: consistent-hashing
+    collectorNotReadyGracePeriod: 30s
+    filterStrategy: relabel-config
+    observability:
+      metrics: {}
+    prometheusCR:
+      scrapeInterval: 30s
+    resources: {}
+  replicas: 1
+  ipFamilyPolicy: SingleStack
+  configVersions: 3
+---
+apiVersion: tempo.grafana.com/v1alpha1
+kind: TempoStack
+metadata:
+  name: sample
+  namespace: observability
+  labels:
+    app.kubernetes.io/managed-by: tempo-operator
+    tempo.grafana.com/distribution: openshift
+spec:
+  observability:
+    grafana:
+      instanceSelector: {}
+    metrics: {}
+    tracing:
+      jaeger_agent_endpoint: 'localhost:6831'
+      otlp_http_endpoint: 'http://localhost:4320'
+  timeout: 30s
+  resources:
+    total:
+      limits:
+        cpu: '2'
+        memory: 2Gi
+  search:
+    defaultResultLimit: 20
+    maxDuration: 0s
+  tenants:
+    authentication:
+      - tenantId: 1610b0c3
+        tenantName: dev
+    mode: openshift
+  managementState: Managed
+  limits:
+    global:
+      ingestion: {}
+      query:
+        maxSearchDuration: 0s
+  serviceAccount: tempo-sample
+  images: {}
+  template:
+    compactor:
+      replicas: 1
+    distributor:
+      component:
+        replicas: 1
+      tls:
+        enabled: false
+    gateway:
+      component:
+        replicas: 1
+      enabled: true
+      ingress:
+        route:
+          termination: reencrypt
+        type: route
+      rbac:
+        enabled: false
+    ingester:
+      replicas: 1
+    querier:
+      replicas: 1
+    queryFrontend:
+      component:
+        replicas: 1
+      jaegerQuery:
+        enabled: true
+        ingress:
+          route: {}
+        monitorTab:
+          enabled: true
+          prometheusEndpoint: 'https://thanos-querier.openshift-monitoring.svc.cluster.local:9092'
+        servicesQueryDuration: 72h0m0s
+        tempoQuery: {}
+  replicationFactor: 1
+  storage:
+    secret:
+      name: tempo-bucket-secret
+      type: s3
+    tls:
+      enabled: false
+  storageSize: 10Gi
+  hashRing:
+    memberlist: {}
+  retention:
+    global:
+      traces: 48h0m0s
