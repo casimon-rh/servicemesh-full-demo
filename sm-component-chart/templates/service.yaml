@@ -23,10 +23,8 @@ metadata:
   labels:
     {{- include "sm-component.labels" . | nindent 4 }}
 spec:
-  {{- if .Values.servicemesh.enablegateway }}
   gateways:
     - {{ .Values.servicemesh.gateway }}
-  {{- end }}
   hosts:
     - "*"
   http:
