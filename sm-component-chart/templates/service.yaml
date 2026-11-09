@@ -14,7 +14,7 @@ spec:
   selector:
     {{- include "sm-component.selectorLabels" . | nindent 4 }}
     app: {{ include "sm-component.fullname" . }}
-{{- if .Values.servicemesh.enable }}
+{{- if .Values.servicemesh.enablegateway }}
 ---
 apiVersion: networking.istio.io/v1
 kind: VirtualService
