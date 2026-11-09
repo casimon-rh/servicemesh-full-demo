@@ -15,9 +15,10 @@ spec:
   tls:
     termination: reencrypt
   wildcardPolicy: None
+{{- end }}
 {{- if .Values.servicemesh.enable }}
 ---
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: Gateway
 metadata:
   name: {{ .Values.servicemesh.gateway }}
@@ -32,6 +33,5 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - {{ .Values.servicemesh.gateway }}-istio-system.{{ .Values.route.wildcardDomain }}
-{{- end }}
+    - "*"
 {{- end }}
