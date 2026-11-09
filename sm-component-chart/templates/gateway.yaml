@@ -1,5 +1,5 @@
 # from: https://raw.githubusercontent.com/istio-ecosystem/sail-operator/main/chart/samples/ingress-gateway.yaml
-{{- if .Values.servicemesh.enable }}
+{{- if .Values.servicemesh.enablegateway }}
 ---
 apiVersion: v1
 kind: Service

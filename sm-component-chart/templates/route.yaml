@@ -16,7 +16,7 @@ spec:
     termination: reencrypt
   wildcardPolicy: None
 {{- end }}
-{{- if .Values.servicemesh.enable }}
+{{- if .Values.servicemesh.enablegateway }}
 ---
 apiVersion: networking.istio.io/v1
 kind: Gateway

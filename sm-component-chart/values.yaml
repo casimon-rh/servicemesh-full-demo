@@ -41,3 +41,4 @@ servicemesh:
   gateway: "servicemesh-node"
   subset: v1
   enable: false
+  enablegateway: false

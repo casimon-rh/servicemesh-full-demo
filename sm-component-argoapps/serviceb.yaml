@@ -38,7 +38,7 @@ spec:
         servicemesh:
           gateway: servicemesh-node
           subset: v1
-          enable: false
+          enable: true
         extraLabels:
           - app.kubernetes.io/part-of: servicemesh-node
           - app.openshift.io/runtime: nodejs
