@@ -4,7 +4,7 @@ import { FORMAT_HTTP_HEADERS, Tags } from "opentracing"
 import pino from "pino"
 import pinohttp from "pino-http"
 import Jaeger from "jaeger-client"
-import prometheus from "prom-client"
+import prometheus, { Counter, Gauge, Registry } from "prom-client"
 
 interface CustomResponse {
   location: string
@@ -39,7 +39,7 @@ const tracer = () => {
   tracer.registerExtractor(FORMAT_HTTP_HEADERS, codec)
   return tracer
 }
-let globalTracer = undefined;
+let globalTracer:Jaeger.JaegerTracer | undefined = undefined;
 
 if (process.env.ENABLE_TRACING || false) {
   globalTracer = tracer()
@@ -47,9 +47,9 @@ if (process.env.ENABLE_TRACING || false) {
 //? ------- Jaeger --------------
 
 //! ------- Prometheus --------------
-let register = undefined
-let responseTime = undefined
-let views = undefined
+let register:Registry | undefined = undefined
+let responseTime:Gauge | undefined = undefined
+let views:Counter | undefined = undefined
 
 if (process.env.ENABLE_METRICS || false) {
   register = new prometheus.Registry()
