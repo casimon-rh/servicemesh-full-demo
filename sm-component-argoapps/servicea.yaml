@@ -26,7 +26,7 @@ spec:
           tag: latest
           local: false
         extraAnnotations:
-          app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"}]'
+          app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-b"},{"apiVersion":"apps/v1","kind":"Deployment","name":"istio-ingressgateway"}]'
         nameOverride: ''
         replicaCount: 1
         route:
