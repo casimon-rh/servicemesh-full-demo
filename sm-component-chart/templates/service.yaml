@@ -39,4 +39,17 @@ spec:
               number: {{ .Values.service.port }}
           weight: 100
 ---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ include "sm-component.fullname" . }}
+  labels:
+    {{- include "sm-component.labels" . | nindent 4 }}
+spec:
+  host: my-service
+  subsets:
+  - name: {{ .Values.servicemesh.subset }}
+    labels:
+      version: {{ .Values.servicemesh.subset }}
+---
 {{- end }}
