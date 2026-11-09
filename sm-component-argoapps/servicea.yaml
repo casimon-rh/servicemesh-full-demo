@@ -30,7 +30,7 @@ spec:
         nameOverride: ''
         replicaCount: 1
         route:
-          enable: true
+          enable: false
           wildcardDomain: ""
         service:
           port: 3000
