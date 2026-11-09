@@ -25,15 +25,20 @@ env:
     value: "http://servicemesh-node-b:3000/chain"
   - name: JAEGER_COLLECTOR_ENDPOINT
     value: "http://jaeger:14268/api/traces"
+  - name: ENABLE_METRICS
+    value: false
+  - name: ENABLE_TRACING
+    value: false
 
 service:
   type: ClusterIP
   port: 3000
 route:
   enable: false
-  wildcardDomain: ""
 
 
 servicemesh:
   gateway: "servicemesh-node"
   subset: v1
+  enable: false
+  enablegateway: false

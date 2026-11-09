@@ -14,9 +14,9 @@ spec:
   selector:
     {{- include "sm-component.selectorLabels" . | nindent 4 }}
     app: {{ include "sm-component.fullname" . }}
-{{- if .Values.servicemesh.enable }}
+{{- if .Values.servicemesh.enablegateway }}
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: {{ include "sm-component.fullname" . }}
@@ -24,12 +24,9 @@ metadata:
     {{- include "sm-component.labels" . | nindent 4 }}
 spec:
   gateways:
-    - {{ .Release.Namespace }}/{{ .Values.servicemesh.gateway }}
-    - mesh
+    - {{ .Values.servicemesh.gateway }}
   hosts:
-    - {{ .Values.servicemesh.gateway }}-istio-system.{{ .Values.route.wildcardDomain }}
-    - {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-    - {{ include "sm-component.fullname" . }}
+    - "*"
   http:
     - match:
         - uri:
@@ -38,16 +35,21 @@ spec:
         - destination:
             host: {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
             subset: {{ .Values.servicemesh.subset }}
+            port:
+              number: {{ .Values.service.port }}
           weight: 100
 ---
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
-apiVersion: networking.istio.io/v1beta1
 metadata:
   name: {{ include "sm-component.fullname" . }}
+  labels:
+    {{- include "sm-component.labels" . | nindent 4 }}
 spec:
   host: {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   subsets:
-    - name: {{ .Values.servicemesh.subset }}
-      labels:
-        version: {{ .Values.servicemesh.subset }}
+  - name: {{ .Values.servicemesh.subset }}
+    labels:
+      version: {{ .Values.servicemesh.subset }}
+---
 {{- end }}

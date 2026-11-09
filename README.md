@@ -29,7 +29,7 @@ We define a generic service that we can later chain in requests with different i
 
 Other related libraries involved in this generic service are express and axios, that can help us with REST client-server interactions.
 
-![architecture](./doc/6.jpg)
+![architecture](./doc/arch.jpg)
 
 
 ## Technologies
@@ -130,37 +130,34 @@ app.get('/metrics', async (req: Request, res: Response) => {
 ## Directories
 
 ```
-
 .
 ├── README.md
+├── doc
+│   └── arch.jpg
+├── servicea.yaml
 ├── sm-component-argoapps
-│ ├── servicea.yaml
-│ ├── serviceb.yaml
-│ ├── servicec.yaml
-│ └── serviced.yaml
+│   ├── servicea.yaml
+│   ├── serviceb.yaml
+│   ├── servicec.yaml
+│   └── serviced.yaml
 ├── sm-component-chart
-│ ├── Chart.yaml
-│ ├── templates
-│ │ ├── \_helpers.tpl
-│ │ ├── deployment.yaml
-│ │ ├── route.yaml
-│ │ └── service.yaml
-│ └── values.yaml
-├── sm-component-code
-│ ├── Dockerfile
-│ ├── docker-compose.yaml
-│ ├── index.ts
-│ ├── package-lock.json
-│ ├── package.json
-│ ├── test.http
-│ └── tsconfig.json
-└── sm-component-values
-├── service-a.values.yaml
-├── service-b.values.yaml
-├── service-c.values.yaml
-└── service-d.values.yaml
+│   ├── Chart.yaml
+│   ├── templates
+│   │   ├── _helpers.tpl
+│   │   ├── deployment.yaml
+│   │   ├── route.yaml
+│   │   └── service.yaml
+│   └── values.yaml
+└── sm-component-code
+    ├── Dockerfile
+    ├── docker-compose.yaml
+    ├── index.ts
+    ├── package-lock.json
+    ├── package.json
+    ├── test.http
+    └── tsconfig.json
 
-````
+```
 
 ## Code Features
 

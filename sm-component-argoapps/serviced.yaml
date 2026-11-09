@@ -19,18 +19,9 @@ spec:
             value: D
           - name: CHAIN_SVC
             value: 'http://servicemesh-full-node-a:3000/chain'
-          - name: JAEGER_COLLECTOR_ENDPOINT
-            value: 'http://jaeger-collector.istio-system.svc.cluster.local:14268/api/traces'
-          - name: ENABLE_METRICS
-            value: true
-          - name: ENABLE_TRACING
-            value: true
         fullnameOverride: servicemesh-full-node-d
         extraAnnotations:
           app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"Deployment","name":"servicemesh-full-node-a"}]'
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "3000"
-          prometheus.io/scheme: "http"
         image:
           name: quay.io/casimon/servicemesh-full-node
           pullPolicy: Always
@@ -47,12 +38,13 @@ spec:
         servicemesh:
           gateway: servicemesh-node
           subset: v1
+          enable: true
         extraLabels:
           - app.kubernetes.io/part-of: servicemesh-node
           - app.openshift.io/runtime: nodejs
     path: sm-component-chart
     repoURL: 'https://github.com/casimon-rh/servicemesh-full-demo'
-    targetRevision: HEAD
+    targetRevision: servicemesh3
   syncPolicy:
     automated:
       prune: true

@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-18
+FROM registry.access.redhat.com/ubi10/nodejs-24
 # WORKDIR /app
 COPY --chown=default:root package* .
 RUN npm i
