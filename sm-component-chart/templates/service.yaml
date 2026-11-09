@@ -46,7 +46,7 @@ metadata:
   labels:
     {{- include "sm-component.labels" . | nindent 4 }}
 spec:
-  host: my-service
+  host: {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   subsets:
   - name: {{ .Values.servicemesh.subset }}
     labels:
