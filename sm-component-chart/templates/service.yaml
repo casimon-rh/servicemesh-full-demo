@@ -35,6 +35,8 @@ spec:
         - destination:
             host: {{ include "sm-component.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
             subset: {{ .Values.servicemesh.subset }}
+            port:
+              number: {{ .Values.service.port }}
           weight: 100
 ---
 {{- end }}
