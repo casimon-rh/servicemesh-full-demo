@@ -28,7 +28,9 @@ spec:
           {{ toYaml $extra | nindent 8 }}
         {{- end }} 
       annotations:
+        {{- if .Values.servicemesh.enable }}
         sidecar.istio.io/inject: 'true'
+        {{- end }}
         {{- toYaml .Values.extraAnnotations | nindent 8 }}
     spec:
       serviceAccountName: default
