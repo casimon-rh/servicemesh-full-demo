@@ -42,3 +42,5 @@ servicemesh:
   subset: v1
   enable: false
   enablegateway: false
+  enablepodmonitor: false
+  
